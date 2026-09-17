@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Double Speed Reducer - Simulasi Interaktif</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #080b52;
+    color: white;
+}
+
+.wrap {
+    max-width: 1250px;
+    margin: auto;
+    padding: 22px;
+}
+
+h1 {
+    margin: 0 0 6px;
+    font-size: 28px;
+}
+
+.sub {
+    opacity: 0.82;
+    margin-bottom: 20px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 18px;
+}
+
+.card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+}
+
+.card h2 {
+    font-size: 18px;
+    margin: 0 0 14px;
+}
+
+.inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 11px;
+}
+
+label {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+input {
+    width: 100%;
+    margin-top: 5px;
+    padding: 10px 11px;
+    border-radius: 9px;
+    border: 1px solid #aeb5ff;
+    background: white;
+    color: #111;
+    font-size: 15px;
+}
+
+button {
+    margin-top: 15px;
+    width: 100%;
+    padding: 11px;
+    border: 0;
+    border-radius: 10px;
+    background: white;
+    color: #080b52;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+button:hover {
+    filter: brightness(0.93);
+}
+
+.result {
+    margin-top: 15px;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.18);
+}
+
+.result .big {
+    font-size: 27px;
+    font-weight: 800;
+    margin: 4px 0;
+}
+
+.green {
+    color: #8fffa9;
+}
+
+.yellow {
+    color: #ffe96a;
+}
+
+.line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.09);
+}
+
+.line:last-child {
+    border-bottom: 0;
+}
+
+.formula {
+    margin-top: 12px;
+    font-family: Consolas, monospace;
+    font-size: 13px;
+    background: #05083c;
+    padding: 10px;
+    border-radius: 9px;
+    line-height: 1.6;
+}
+
+/* =========================
+   DIAGRAM
+========================= */
+
+.diagram {
+    min-height: 650px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+
+    background:
+        radial-gradient(
+            circle at 70% 35%,
+            rgba(72,88,255,0.35),
+            transparent 34%
+        ),
+        linear-gradient(
+            135deg,
+            #070b62,
+            #111681 55%,
+            #080b52
+        );
+}
+
+.diagram-title {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    font-weight: 800;
+    font-size: 20px;
+}
+
+svg {
+    width: 100%;
+    height: 100%;
+    min-height: 650px;
+}
+
+.machine-label {
+    font-size: 16px;
+    font-weight: 700;
+    fill: white;
+}
+
+.small-label {
+    font-size: 13px;
+    fill: #dce0ff;
+}
+
+.shaft {
+    stroke: #d4d7ff;
+    stroke-width: 8;
+    stroke-linecap: round;
+}
+
+.gear {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.tooth {
+    fill: #cbd0ff;
+    stroke: white;
+    stroke-width: 1;
+}
+
+.gearbody {
+    fill: #6874d8;
+    stroke: white;
+    stroke-width: 2;
+}
+
+.hub {
+    fill: #20266f;
+    stroke: white;
+    stroke-width: 2;
+}
+
+.arrow {
+    stroke: white;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+}
+
+.speedbox {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+
+    background: rgba(4,7,53,0.84);
+
+    padding: 12px 15px;
+    border-radius: 11px;
+
+    min-width: 210px;
+}
+
+.speedbox b {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.status {
+    font-size: 13px;
+    opacity: 0.85;
+}
+
+.legend {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+
+    margin-top: 13px;
+
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+    display: inline-block;
+
+    background: #8fffa9;
+
+    margin-right: 5px;
+}
+
+.dot2 {
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+    display: inline-block;
+
+    background: #ffe96a;
+
+    margin-right: 5px;
+}
+
+@media(max-width:850px) {
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .diagram {
+        min-height: 560px;
+    }
+
+    svg {
+        min-height: 560px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<h1>
+Double Speed Reducer — Program Interaktif
+</h1>
+
+<div class="sub">
+Masukkan data pada bagian <b>Given</b>.
+Program akan menghitung putaran setiap tingkat,
+rasio reduksi, perubahan torsi, serta menampilkan
+simulasi roda gigi.
+</div>
+
+
+<div class="grid">
+
+<!-- =========================
+     INPUT
+========================= -->
+
+<section class="card">
+
+<h2>Input — Given</h2>
+
+<div class="inputs">
+
+<div>
+<label>
+n1 — Putaran input (rpm)
+</label>
+
+<input
+id="n1"
+type="number"
+min="0.01"
+step="0.1"
+value="500">
+</div>
+
+
+<div>
+<label>
+N1 — Gigi gear 1 (t)
+</label>
+
+<input
+id="N1"
+type="number"
+min="1"
+step="1"
+value="20">
+</div>
+
+
+<div>
+<label>
+N2 — Gigi gear 2 (t)
+</label>
+
+<input
+id="N2"
+type="number"
+min="1"
+step="1"
+value="70">
+</div>
+
+
+<div>
+<label>
+N3 — Gigi gear 3 (t)
+</label>
+
+<input
+id="N3"
+type="number"
+min="1"
+step="1"
+value="18">
+</div>
+
+
+<div>
+<label>
+N4 — Gigi gear 4 (t)
+</label>
+
+<input
+id="N4"
+type="number"
+min="1"
+step="1"
+value="54">
+</div>
+
+</div>
+
+
+<button onclick="hitung()">
+Hitung & Jalankan Simulasi
+</button>
+
+
+<!-- =========================
+     HASIL
+========================= -->
+
+<div class="result">
+
+<div class="line">
+<span>n2</span>
+<b id="outN2">142.86 rpm</b>
+</div>
+
+
+<div class="line">
+<span>n3</span>
+<b id="outN3">142.86 rpm</b>
+</div>
+
+
+<div class="line">
+<span>n4</span>
+<b id="outN4">47.62 rpm</b>
+</div>
+
+
+<div class="line">
+<span>Total reduction</span>
+<b id="ratio">10.50 : 1</b>
+</div>
+
+
+<div style="margin-top:13px">
+Torsi
+</div>
+
+<div class="big green" id="torqueText">
+Meningkat 10.50×
+</div>
+
+<div
+class="status"
+id="percentText">
+setara dengan kenaikan 950.00%
+(ideal, tanpa rugi-rugi)
+</div>
+
+
+<div style="margin-top:13px">
+Daya
+</div>
+
+<div class="big yellow">
+Tetap sama
+</div>
+
+<div class="status">
+P2 = P1, dengan asumsi tidak ada kehilangan daya.
+</div>
+
+
+<!-- =========================
+     RUMUS
+========================= -->
+
+<div class="formula">
+
+n2 = n1 × N1 / N2
+
+<br>
+
+n3 = n2
+
+<br>
+
+n4 = n3 × N3 / N4
+
+<br>
+
+reduction = n1 / n4
+
+</div>
+
+</div>
+
+
+<div class="legend">
+
+<span>
+<i class="dot"></i>
+Putaran input
+</span>
+
+<span>
+<i class="dot2"></i>
+Putaran output
+</span>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     SIMULASI
+========================= -->
+
+<section
+class="card"
+style="padding:0;overflow:hidden">
+
+<div class="diagram">
+
+<div class="diagram-title">
+Simulasi 2 Tingkat
+</div>
+
+
+<svg
+viewBox="0 0 820 650"
+aria-label="Diagram double speed reducer">
+
+
+<!-- =========================
+     ENGINE
+========================= -->
+
+<rect
+x="35"
+y="115"
+width="125"
+height="70"
+rx="5"
+fill="none"
+stroke="white"
+stroke-width="2"
+/>
+
+<text
+x="97"
+y="156"
+text-anchor="middle"
+class="machine-label">
+
+ENGINE
+
+</text>
+
+
+<!-- SHAFT INPUT -->
+
+<line
+x1="160"
+y1="150"
+x2="265"
+y2="150"
+class="shaft"
+/>
+
+<circle
+cx="225"
+cy="150"
+r="7"
+fill="#8fffa9"
+/>
+
+
+<text
+x="206"
+y="125"
+class="small-label">
+
+n1, N1
+
+</text>
+
+
+<!-- =========================
+     GEAR 1
+========================= -->
+
+<g
+id="gear1"
+class="gear">
+
+<circle
+cx="270"
+cy="150"
+r="38"
+class="gearbody"
+/>
+
+<circle
+cx="270"
+cy="150"
+r="10"
+class="hub"
+/>
+
+<g id="teeth1"></g>
+
+</g>
+
+
+<!-- =========================
+     GEAR 2
+========================= -->
+
+<g
+id="gear2"
+class="gear">
+
+<circle
+cx="270"
+cy="305"
+r="105"
+class="gearbody"
+/>
+
+<circle
+cx="270"
+cy="305"
+r="12"
+class="hub"
+/>
+
+<g id="teeth2"></g>
+
+</g>
+
+
+<!-- SHAFT TINGKAT 1 -->
+
+<line
+x1="270"
+y1="305"
+x2="485"
+y2="305"
+class="shaft"
+/>
+
+<text
+x="292"
+y="275"
+class="small-label">
+
+n2, N2
+
+</text>
+
+
+<!-- =========================
+     GEAR 3
+========================= -->
+
+<g
+id="gear3"
+class="gear">
+
+<circle
+cx="515"
+cy="305"
+r="27"
+class="gearbody"
+/>
+
+<circle
+cx="515"
+cy="305"
+r="9"
+class="hub"
+/>
+
+<g id="teeth3"></g>
+
+</g>
+
+
+<!-- =========================
+     GEAR 4
+========================= -->
+
+<g
+id="gear4"
+class="gear">
+
+<circle
+cx="515"
+cy="405"
+r="81"
+class="gearbody"
+/>
+
+<circle
+cx="515"
+cy="405"
+r="12"
+class="hub"
+/>
+
+<g id="teeth4"></g>
+
+</g>
+
+
+<!-- SHAFT OUTPUT -->
+
+<line
+x1="515"
+y1="405"
+x2="650"
+y2="405"
+class="shaft"
+/>
+
+<circle
+cx="650"
+cy="405"
+r="7"
+fill="#ffe96a"
+/>
+
+
+<text
+x="535"
+y="375"
+class="small-label">
+
+n4, N4
+
+</text>
+
+
+<!-- =========================
+     HOIST DRUM
+========================= -->
+
+<rect
+x="650"
+y="370"
+width="130"
+height="70"
+rx="5"
+fill="none"
+stroke="white"
+stroke-width="2"
+/>
+
+<text
+x="715"
+y="411"
+text-anchor="middle"
+class="machine-label">
+
+HOIST DRUM
+
+</text>
+
+
+<!-- TALI -->
+
+<line
+x1="715"
+y1="440"
+x2="715"
+y2="535"
+stroke="white"
+stroke-width="2"
+/>
+
+
+<!-- BEBAN -->
+
+<rect
+x="690"
+y="535"
+width="50"
+height="55"
+rx="4"
+fill="#4565ed"
+stroke="white"
+stroke-width="2"
+/>
+
+
+<!-- LABEL TINGKAT -->
+
+<text
+x="270"
+y="485"
+text-anchor="middle"
+class="small-label">
+
+TINGKAT 1
+
+</text>
+
+
+<text
+x="515"
+y="485"
+text-anchor="middle"
+class="small-label">
+
+TINGKAT 2
+
+</text>
+
+
+<!-- =========================
+     ARROW
+========================= -->
+
+<path
+id="arrow1"
+d="M245 93 A42 42 0 0 1 294 118"
+class="arrow"
+/>
+
+
+<path
+id="arrow4"
+d="M487 355 A86 86 0 0 1 548 350"
+class="arrow"
+/>
+
+</svg>
+
+
+<!-- =========================
+     SPEED CONTROL
+========================= -->
+
+<div class="speedbox">
+
+<b>
+Kecepatan simulasi
+</b>
+
+
+<input
+id="simSpeed"
+type="range"
+min="0.25"
+max="3"
+value="1"
+step="0.25"
+style="margin:0"
+/>
+
+
+<div class="status">
+
+Skala:
+<span id="simValue">
+1.00×
+</span>
+
+</div>
+
+
+<div
+class="status"
+style="margin-top:5px">
+
+Input:
+
+<b id="liveN1">
+500 rpm
+</b>
+
+→
+
+Output:
+
+<b id="liveN4">
+47.62 rpm
+</b>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   MEMBUAT GIGI PADA RODA
+========================================= */
+
+function createTeeth(
+    groupId,
+    cx,
+    cy,
+    radius,
+    count
+){
+
+    const group =
+        document.getElementById(groupId);
+
+    group.innerHTML = "";
+
+    const toothDepth =
+        Math.max(
+            7,
+            radius * 0.13
+        );
+
+
+    for(
+        let i = 0;
+        i < count;
+        i++
+    ){
+
+        const angle =
+            i * 360 / count;
+
+
+        const r1 =
+            radius - 2;
+
+
+        const r2 =
+            radius + toothDepth;
+
+
+        const x1 =
+            cx +
+            r1 *
+            Math.cos(
+                angle *
+                Math.PI /
+                180
+            );
+
+
+        const y1 =
+            cy +
+            r1 *
+            Math.sin(
+                angle *
+                Math.PI /
+                180
+            );
+
+
+        const x2 =
+            cx +
+            r2 *
+            Math.cos(
+                angle *
+                Math.PI /
+                180
+            );
+
+
+        const y2 =
+            cy +
+            r2 *
+            Math.sin(
+                angle *
+                Math.PI /
+                180
+            );
+
+
+        const tooth =
+            document.createElementNS(
+                "http://www.w3.org/2000/svg",
+                "line"
+            );
+
+
+        tooth.setAttribute(
+            "x1",
+            x1
+        );
+
+
+        tooth.setAttribute(
+            "y1",
+            y1
+        );
+
+
+        tooth.setAttribute(
+            "x2",
+            x2
+        );
+
+
+        tooth.setAttribute(
+            "y2",
+            y2
+        );
+
+
+        tooth.setAttribute(
+            "class",
+            "tooth"
+        );
+
+
+        tooth.setAttribute(
+            "stroke-width",
+            Math.max(
+                3,
+                radius * 0.08
+            )
+        );
+
+
+        group.appendChild(
+            tooth
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   ANIMASI RODA GIGI
+========================================= */
+
+function setAnimation(
+    id,
+    rpm,
+    direction,
+    speedScale
+){
+
+    const el =
+        document.getElementById(id);
+
+
+    const effective =
+        Math.max(
+            0.05,
+            Math.abs(rpm) *
+            speedScale
+        );
+
+
+    const duration =
+        Math.max(
+            0.25,
+            3600 /
+            effective
+        );
+
+
+    el.style.animation =
+        (
+            direction === "cw"
+            ? "spinCW"
+            : "spinCCW"
+        )
+        +
+        " "
+        +
+        duration
+        +
+        "s linear infinite";
+}
+
+
+/* =========================================
+   PERHITUNGAN UTAMA
+========================================= */
+
+function hitung(){
+
+    const n1 =
+        parseFloat(
+            document.getElementById(
+                "n1"
+            ).value
+        );
+
+
+    const N1 =
+        parseFloat(
+            document.getElementById(
+                "N1"
+            ).value
+        );
+
+
+    const N2 =
+        parseFloat(
+            document.getElementById(
+                "N2"
+            ).value
+        );
+
+
+    const N3 =
+        parseFloat(
+            document.getElementById(
+                "N3"
+            ).value
+        );
+
+
+    const N4 =
+        parseFloat(
+            document.getElementById(
+                "N4"
+            ).value
+        );
+
+
+    if(
+        ![
+            n1,
+            N1,
+            N2,
+            N3,
+            N4
+        ].every(Number.isFinite)
+        ||
+        n1 <= 0
+        ||
+        N1 <= 0
+        ||
+        N2 <= 0
+        ||
+        N3 <= 0
+        ||
+        N4 <= 0
+    ){
+
+        alert(
+            "Semua input harus berupa angka lebih besar dari 0."
+        );
+
+        return;
+    }
+
+
+    /* =========================
+       RUMUS
+    ========================= */
+
+    const n2 =
+        n1 *
+        N1 /
+        N2;
+
+
+    const n3 =
+        n2;
+
+
+    const n4 =
+        n3 *
+        N3 /
+        N4;
+
+
+    const reduction =
+        n1 /
+        n4;
+
+
+    const percent =
+        (
+            reduction - 1
+        ) *
+        100;
+
+
+    /* =========================
+       OUTPUT
+    ========================= */
+
+    document.getElementById(
+        "outN2"
+    ).textContent =
+        n2.toFixed(2)
+        +
+        " rpm";
+
+
+    document.getElementById(
+        "outN3"
+    ).textContent =
+        n3.toFixed(2)
+        +
+        " rpm";
+
+
+    document.getElementById(
+        "outN4"
+    ).textContent =
+        n4.toFixed(2)
+        +
+        " rpm";
+
+
+    document.getElementById(
+        "ratio"
+    ).textContent =
+        reduction.toFixed(2)
+        +
+        " : 1";
+
+
+    document.getElementById(
+        "torqueText"
+    ).textContent =
+        "Meningkat "
+        +
+        reduction.toFixed(2)
+        +
+        "×";
+
+
+    document.getElementById(
+        "percentText"
+    ).textContent =
+        "setara dengan kenaikan "
+        +
+        percent.toFixed(2)
+        +
+        "% (ideal, tanpa rugi-rugi)";
+
+
+    document.getElementById(
+        "liveN1"
+    ).textContent =
+        n1.toFixed(2)
+        +
+        " rpm";
+
+
+    document.getElementById(
+        "liveN4"
+    ).textContent =
+        n4.toFixed(2)
+        +
+        " rpm";
+
+
+    /* =========================
+       MEMBUAT JUMLAH GIGI
+    ========================= */
+
+    createTeeth(
+        "teeth1",
+        270,
+        150,
+        38,
+        Math.min(
+            24,
+            Math.max(
+                8,
+                Math.round(N1 / 2)
+            )
+        )
+    );
+
+
+    createTeeth(
+        "teeth2",
+        270,
+        305,
+        105,
+        Math.min(
+            42,
+            Math.max(
+                12,
+                Math.round(N2 / 2)
+            )
+        )
+    );
+
+
+    createTeeth(
+        "teeth3",
+        515,
+        305,
+        27,
+        Math.min(
+            22,
+            Math.max(
+                8,
+                Math.round(N3 / 2)
+            )
+        )
+    );
+
+
+    createTeeth(
+        "teeth4",
+        515,
+        405,
+        81,
+        Math.min(
+            42,
+            Math.max(
+                12,
+                Math.round(N4 / 2)
+            )
+        )
+    );
+
+
+    updateAnimation();
+
+}
+
+
+/* =========================================
+   UPDATE ANIMASI
+========================================= */
+
+function updateAnimation(){
+
+    const n1 =
+        parseFloat(
+            document.getElementById(
+                "n1"
+            ).value
+        )
+        ||
+        500;
+
+
+    const n2 =
+        parseFloat(
+            document.getElementById(
+                "outN2"
+            ).textContent
+        )
+        ||
+        142.86;
+
+
+    const n4 =
+        parseFloat(
+            document.getElementById(
+                "outN4"
+            ).textContent
+        )
+        ||
+        47.62;
+
+
+    const scale =
+        parseFloat(
+            document.getElementById(
+                "simSpeed"
+            ).value
+        )
+        ||
+        1;
+
+
+    document.getElementById(
+        "simValue"
+    ).textContent =
+        scale.toFixed(2)
+        +
+        "×";
+
+
+    /*
+       Gear 1 → Gear 2
+       arah berlawanan
+
+       Gear 2 dan Gear 3
+       berada pada satu shaft,
+       sehingga arahnya sama.
+
+       Gear 3 → Gear 4
+       arah berlawanan.
+    */
+
+    setAnimation(
+        "gear1",
+        n1,
+        "cw",
+        scale * 0.22
+    );
+
+
+    setAnimation(
+        "gear2",
+        n2,
+        "ccw",
+        scale * 0.22
+    );
+
+
+    setAnimation(
+        "gear3",
+        n2,
+        "ccw",
+        scale * 0.22
+    );
+
+
+    setAnimation(
+        "gear4",
+        n4,
+        "cw",
+        scale * 0.22
+    );
+
+}
+
+
+/* =========================================
+   SLIDER KECEPATAN
+========================================= */
+
+document
+    .getElementById("simSpeed")
+    .addEventListener(
+        "input",
+        updateAnimation
+    );
+
+
+/* =========================================
+   INPUT OTOMATIS UPDATE
+========================================= */
+
+[
+    "n1",
+    "N1",
+    "N2",
+    "N3",
+    "N4"
+]
+.forEach(
+    function(id){
+
+        document
+            .getElementById(id)
+            .addEventListener(
+                "change",
+                hitung
+            );
+
+    }
+);
+
+
+/* =========================================
+   JALANKAN PROGRAM PERTAMA KALI
+========================================= */
+
+hitung();
+
+</script>
+
+</body>
+</html>
